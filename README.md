@@ -1,2 +1,2 @@
-# learn-fin-traffic-rules.github.io
-Learn Finnish Traffic Rules
+# learn-fin-traffic-rules
+Learn Finnish Traffic Rules with @nbfarhad
