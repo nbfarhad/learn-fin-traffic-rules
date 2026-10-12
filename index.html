@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finnish Road Priority Rules – Visual Guide & Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080d1a;--bg2:#0d1428;--card:#121a30;--card2:#18223d;--line:#24325a;
+  --text:#e9eefb;--muted:#94a3c7;--accent:#5b9bff;--accent2:#8b5cf6;
+  --green:#22c55e;--red:#ef4444;--amber:#fbbf24;
+  --shadow:0 24px 60px -28px rgba(0,0,0,.75);
+}
+[data-theme="light"]{
+  --bg:#f3f6fc;--bg2:#e8eef9;--card:#ffffff;--card2:#f0f4fc;--line:#d8e1f2;
+  --text:#0e1a35;--muted:#566a92;--accent:#2563eb;--accent2:#7c3aed;
+  --shadow:0 24px 50px -30px rgba(30,50,110,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;
+  background-image:radial-gradient(900px 500px at 85% -5%,rgba(91,155,255,.14),transparent 60%),radial-gradient(700px 500px at -5% 25%,rgba(139,92,246,.10),transparent 60%);
+  background-attachment:fixed;transition:background-color .3s,color .3s}
+section,article{scroll-margin-top:90px}
+a{color:inherit;text-decoration:none}
+
+/* ---------- header ---------- */
+header.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1120px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.flag{width:40px;height:28px;border-radius:5px;background:#fff;position:relative;box-shadow:0 4px 14px -4px rgba(0,0,0,.5);overflow:hidden;flex:none}
+.flag:before{content:"";position:absolute;left:11px;top:0;bottom:0;width:6px;background:#0b4fa8}
+.flag:after{content:"";position:absolute;top:11px;left:0;right:0;height:6px;background:#0b4fa8}
+.brand b{display:block;font-size:15px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.brand small{font-size:11px;color:var(--muted)}
+.links{display:flex;gap:4px;align-items:center}
+.links a{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);transition:.2s}
+.links a:hover{background:var(--card2);color:var(--text)}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-size:16px;display:grid;place-items:center;transition:.2s}
+.icon-btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+#progress{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0}
+@media(max-width:720px){.links a:not(.cta){display:none}}
+.cta{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff!important;box-shadow:0 8px 20px -8px var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{max-width:1120px;margin:0 auto;padding:56px 20px 30px;display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center}
+@media(max-width:900px){.hero{grid-template-columns:1fr;text-align:center}.hero .btns,.hero .stats{justify-content:center}}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
+.hero h2{font-size:clamp(34px,5.4vw,58px);line-height:1.04;font-weight:800;letter-spacing:-.035em;margin-bottom:18px}
+.grad{background:linear-gradient(120deg,var(--accent),var(--accent2) 60%,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:18px;color:var(--muted);max-width:560px;margin-bottom:26px}
+@media(max-width:900px){.hero p.lead{margin-inline:auto}}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:14px;font-weight:700;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;transition:.2s;font-family:inherit}
+.btn:hover{transform:translateY(-2px);border-color:var(--accent)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;box-shadow:0 12px 28px -12px var(--accent)}
+.btn.sm{padding:7px 12px;font-size:12px;border-radius:10px}
+.stats{display:flex;gap:26px;flex-wrap:wrap}
+.stats div b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.stats div span{font-size:12px;color:var(--muted);font-weight:600}
+
+.sign-wall{position:relative;height:380px;border-radius:28px;background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.sign-wall:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,255,255,.025) 38px 39px),repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,255,255,.025) 38px 39px)}
+.sign-wall svg{position:absolute;filter:drop-shadow(0 14px 18px rgba(0,0,0,.45));animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-12px) rotate(var(--r,0deg))}}
+.sw1{width:140px;height:140px;left:8%;top:9%;--r:-6deg}
+.sw2{width:130px;height:130px;right:9%;top:6%;--r:5deg;animation-delay:-1.2s!important}
+.sw3{width:120px;height:120px;left:38%;top:36%;--r:0deg;animation-delay:-2.4s!important}
+.sw4{width:115px;height:115px;left:7%;bottom:7%;--r:4deg;animation-delay:-3.1s!important}
+.sw5{width:125px;height:125px;right:8%;bottom:8%;--r:-4deg;animation-delay:-.6s!important}
+
+/* ---------- layout ---------- */
+main{max-width:1120px;margin:0 auto;padding:10px 20px 70px;display:flex;flex-direction:column;gap:30px}
+.search{max-width:520px;margin:0 auto 6px;position:relative;width:100%}
+.search input{width:100%;padding:14px 18px 14px 46px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:14px;outline:none;transition:.2s}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.search span{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.6}
+#noresults{display:none;text-align:center;color:var(--muted);padding:30px}
+
+.chapter{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:30px;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:30px;align-items:center}
+.chapter.wide{grid-template-columns:1fr}
+.chapter.flip .text{order:2}
+@media(max-width:880px){.chapter{grid-template-columns:1fr;padding:20px}.chapter.flip .text{order:0}}
+.num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);font-weight:800;font-size:14px;margin-bottom:12px}
+.chapter h3{font-size:26px;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.chapter p{color:var(--muted);margin-bottom:14px}
+.chapter p b,.chapter li b{color:var(--text)}
+.rule{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;margin-top:6px;border:1px solid;font-size:14px}
+.rule .ic{font-size:22px;line-height:1}
+.rule.blue{background:color-mix(in srgb,var(--accent) 10%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.rule.amber{background:color-mix(in srgb,var(--amber) 10%,transparent);border-color:color-mix(in srgb,var(--amber) 40%,transparent)}
+.rule.red{background:color-mix(in srgb,var(--red) 9%,transparent);border-color:color-mix(in srgb,var(--red) 38%,transparent)}
+.rule.green{background:color-mix(in srgb,var(--green) 9%,transparent);border-color:color-mix(in srgb,var(--green) 38%,transparent)}
+.ticks{list-style:none;display:grid;gap:8px;margin:4px 0 14px}
+.ticks li{display:flex;gap:10px;font-size:14px;color:var(--muted)}
+.ticks li:before{content:"✓";color:var(--green);font-weight:800}
+
+/* ---------- order ladder ---------- */
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px}
+@media(max-width:900px){.ladder{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.ladder{grid-template-columns:1fr}}
+.step{position:relative;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:20px 18px;transition:.25s}
+.step:hover{transform:translateY(-4px);border-color:var(--accent)}
+.step .n{position:absolute;top:-12px;left:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:800;font-size:12px;padding:3px 11px;border-radius:999px}
+.step .e{font-size:34px;margin-bottom:6px}
+.step h4{font-size:15px;font-weight:800;margin-bottom:4px}
+.step p{font-size:13px;margin:0}
+
+/* ---------- sign grid ---------- */
+.sign-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:10px}
+@media(max-width:900px){.sign-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.sign-grid{grid-template-columns:1fr}}
+.sign-card{background:var(--card2);border:1px solid var(--line);border-radius:22px;padding:22px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;transition:.3s}
+.sign-card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 22px 40px -22px var(--accent)}
+.sign-card svg{width:104px;height:104px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.35));transition:.3s}
+.sign-card:hover svg{transform:scale(1.08) rotate(-3deg)}
+.sign-card h4{font-size:17px;font-weight:800;margin-top:6px}
+.sign-card .fi{font-size:12px;font-style:italic;color:var(--accent)}
+.sign-card p{font-size:13.5px;margin:6px 0 0;color:var(--muted)}
+.tag{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.tag.red{background:rgba(239,68,68,.15);color:#f87171}
+.tag.yellow{background:rgba(251,191,36,.16);color:#f5b50a}
+.tag.blue{background:rgba(91,155,255,.16);color:var(--accent)}
+.tag.green{background:rgba(34,197,94,.15);color:#22c55e}
+
+/* ---------- scenes ---------- */
+.scene{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#14402e;box-shadow:0 18px 40px -22px rgba(0,0,0,.7)}
+.scene>svg{display:block;width:100%;height:auto}
+.scene-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px 10px 16px;background:var(--card2);border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.scene-bar b{color:var(--text)}
+.traj{fill:none;stroke-width:3;stroke-dasharray:2 9;stroke-linecap:round;opacity:.5;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-22}}
+.bub{transition:opacity .2s;pointer-events:none}
+.boom{animation:boom .6s ease-out forwards;transform-box:fill-box;transform-origin:center}
+@keyframes boom{from{transform:scale(.3);opacity:1}to{transform:scale(5);opacity:0}}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.pair{grid-template-columns:1fr}}
+.pair h4{font-size:15px;font-weight:800;margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.pair h4 svg{width:30px;height:30px}
+
+/* ---------- simulator ---------- */
+.sim{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:30px;padding:32px;box-shadow:var(--shadow)}
+.sim-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.sim-head h3{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:4px;gap:2px}
+.seg button{border:none;background:transparent;color:var(--muted);padding:8px 16px;border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.seg button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 6px 16px -6px var(--accent)}
+.tabs{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 14px;margin-bottom:6px;scrollbar-width:thin}
+.tab{flex:none;display:flex;align-items:center;gap:10px;padding:9px 16px 9px 10px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.tab svg{width:30px;height:30px}
+.tab .ar{font-size:22px;width:30px;text-align:center;color:var(--accent)}
+.tab:hover{border-color:var(--accent);color:var(--text)}
+.tab.on{background:color-mix(in srgb,var(--accent) 16%,var(--card));border-color:var(--accent);color:var(--text);box-shadow:0 10px 24px -14px var(--accent)}
+.sim-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:24px;align-items:start}
+@media(max-width:940px){.sim-grid{grid-template-columns:1fr}}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;min-height:34px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--card)}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip.waiting{border-color:var(--red);color:#f87171}
+.chip.slowing{border-color:var(--amber);color:var(--amber)}
+.chip.driving{border-color:var(--green);color:var(--green)}
+.chip.done{opacity:.6}
+.go{width:100%;padding:16px;border-radius:18px;border:none;font:inherit;font-size:18px;font-weight:800;letter-spacing:.03em;color:#fff;cursor:pointer;background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 16px 30px -14px #22c55e;transition:.2s;display:none}
+.go.show{display:block}
+.go:hover{transform:translateY(-2px)}.go:active{transform:scale(.98)}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:22px}
+.panel h4{font-size:20px;font-weight:800;margin-bottom:6px}
+.panel p{font-size:14px;color:var(--muted);margin-bottom:12px}
+.panel ol{padding-left:20px;display:grid;gap:7px;font-size:14px;color:var(--muted);margin-bottom:14px}
+.panel ol li b{color:var(--text)}
+.signs-in{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.signs-in span{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:5px 12px 5px 6px;font-size:12px;font-weight:700}
+.signs-in svg{width:26px;height:26px}
+#sim-result{padding:14px 16px;border-radius:14px;font-size:14px;font-weight:600;border:1px solid;transition:.25s}
+#sim-result.info{background:color-mix(in srgb,var(--accent) 11%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent)}
+#sim-result.good{background:color-mix(in srgb,var(--green) 12%,transparent);border-color:var(--green)}
+#sim-result.bad{background:color-mix(in srgb,var(--red) 12%,transparent);border-color:var(--red)}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+select{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:inherit;font-size:12px;font-weight:700}
+
+/* ---------- quiz ---------- */
+.quiz{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:32px;box-shadow:var(--shadow)}
+.q-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.q-bar{height:8px;border-radius:99px;background:var(--bg2);overflow:hidden;margin-bottom:24px}
+.q-bar div{height:100%;width:0;background:linear-gradient(90deg,var(--green),#10b981);transition:width .4s}
+.q-body{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:18px}
+.q-body svg{width:96px;height:96px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.35))}
+.q-body.nosign{grid-template-columns:1fr}
+@media(max-width:560px){.q-body{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.q-body h4{font-size:21px;line-height:1.3;font-weight:800;letter-spacing:-.01em}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--card2);color:var(--text);font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--accent);transform:translateX(4px)}
+.opt .l{flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--bg2);font-size:12px;font-weight:800;color:var(--muted)}
+.opt.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 13%,transparent)}
+.opt.correct .l{background:var(--green);color:#fff}
+.opt.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 11%,transparent)}
+.opt.wrong .l{background:var(--red);color:#fff}
+.opt:disabled{cursor:default}
+#q-feedback{display:none;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:14px;border:1px solid}
+#q-feedback.good{display:block;background:color-mix(in srgb,var(--green) 11%,transparent);border-color:var(--green)}
+#q-feedback.bad{display:block;background:color-mix(in srgb,var(--red) 10%,transparent);border-color:var(--red)}
+.q-end{text-align:center;padding:20px 0}
+.q-end .big{font-size:64px;font-weight:800;letter-spacing:-.04em}
+
+footer{border-top:1px solid var(--line);padding:30px 20px;text-align:center;color:var(--muted);font-size:13px}
+footer small{display:block;margin-top:6px;opacity:.8}
+@media(prefers-reduced-motion:reduce){.sign-wall svg,.traj{animation:none}}
+</style>
+</head>
+<body>
+
+<!-- ============ Shared SVG symbols: traffic signs ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <linearGradient id="beam" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="#fff6c2" stop-opacity=".55"/><stop offset="1" stop-color="#fff6c2" stop-opacity="0"/>
+  </linearGradient>
+
+  <!-- Give way: red-bordered triangle pointing down -->
+  <symbol id="s-giveway" viewBox="0 0 100 100">
+    <polygon points="50,92 7,16 93,16" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>
+    <polygon points="50,89 10,19 90,19" fill="#d6212a" stroke="#d6212a" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="50,68 25,27 75,27" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+
+  <!-- STOP -->
+  <symbol id="s-stop" viewBox="0 0 100 100">
+    <polygon points="92.5,32.4 67.6,7.5 32.4,7.5 7.5,32.4 7.5,67.6 32.4,92.5 67.6,92.5 92.5,67.6" fill="#d6212a" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="86.6,34.9 65.1,13.4 34.9,13.4 13.4,34.9 13.4,65.1 34.9,86.6 65.1,86.6 86.6,65.1" fill="none" stroke="#fff" stroke-width="1.6"/>
+    <text x="50" y="60" font-size="25" font-weight="800" fill="#fff" text-anchor="middle" font-family="Inter,Arial,sans-serif">STOP</text>
+  </symbol>
+
+  <!-- Priority road (main road): yellow diamond -->
+  <symbol id="s-priority" viewBox="0 0 100 100">
+    <polygon points="50,3 97,50 50,97 3,50" fill="#fff" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="50,15 85,50 50,85 15,50" fill="#f9c80e" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+  </symbol>
+
+  <!-- End of priority road -->
+  <symbol id="s-endpriority" viewBox="0 0 100 100">
+    <polygon points="50,3 97,50 50,97 3,50" fill="#fff" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="50,15 85,50 50,85 15,50" fill="#f9c80e" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+    <line x1="30" y1="70" x2="70" y2="30" stroke="#111" stroke-width="5" stroke-linecap="round"/>
+    <line x1="42" y1="74" x2="74" y2="42" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="26" y1="58" x2="58" y2="26" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Roundabout (arrows built in script) -->
+  <symbol id="s-round" viewBox="0 0 100 100"></symbol>
+
+  <!-- Equal junction ahead (warning) -->
+  <symbol id="s-equal" viewBox="0 0 100 100">
+    <polygon points="50,9 94,88 6,88" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="50,12 90,85 10,85" fill="#d6212a" stroke="#d6212a" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="50,30 76,77 24,77" fill="#fff"/>
+    <line x1="50" y1="40" x2="50" y2="73" stroke="#111" stroke-width="7"/>
+    <line x1="35" y1="59" x2="65" y2="59" stroke="#111" stroke-width="7"/>
+  </symbol>
+</defs>
+</svg>
+
+<!-- ============ Header ============ -->
+<header class="nav">
+  <div class="nav-in">
+    <a href="#top" class="brand">
+      <div class="flag"></div>
+      <div><b>Finnish Priority Rules</b><small>Visual guide · Right-hand traffic</small></div>
+    </a>
+    <nav class="links">
+      <a href="#order">Who goes first</a>
+      <a href="#signs">Signs</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#simulator" class="cta">▶ Simulator</a>
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Switch light or dark theme">☀️</button>
+    </nav>
+  </div>
+  <div id="progress"></div>
+</header>
+
+<!-- ============ Hero ============ -->
+<section class="hero" id="top">
+  <div>
+    <span class="pill">🇫🇮 Easy English guide</span>
+    <h2>Know who goes first on <span class="grad">Finnish roads</span></h2>
+    <p class="lead">Traffic signs, junctions and roundabouts explained with animated cars. Everyone drives on the <b>right side</b>. Watch it, then try it yourself in the simulator.</p>
+    <div class="btns">
+      <a class="btn primary" href="#simulator">🚗 Try the simulator</a>
+      <a class="btn" href="#signs">🛑 See the signs</a>
+    </div>
+    <div class="stats">
+      <div><b>6</b><span>Key traffic signs</span></div>
+      <div><b>6</b><span>Animated junctions</span></div>
+      <div><b>8</b><span>Quiz questions</span></div>
+    </div>
+  </div>
+  <div class="sign-wall" aria-hidden="true">
+    <svg class="sw1"><use href="#s-stop"/></svg>
+    <svg class="sw2"><use href="#s-priority"/></svg>
+    <svg class="sw3"><use href="#s-giveway"/></svg>
+    <svg class="sw4"><use href="#s-round"/></svg>
+    <svg class="sw5"><use href="#s-equal"/></svg>
+  </div>
+</section>
+
+<!-- ============ Chapters ============ -->
+<main>
+  <div class="search">
+    <span>🔍</span>
+    <input id="chapter-search" type="text" placeholder="Search: roundabout, STOP, left turn, right-hand rule…" oninput="filterChapters()">
+  </div>
+  <div id="noresults">Nothing found. Try “sign”, “turn” or “right”.</div>
+
+  <!-- 01 Keep right -->
+  <article class="chapter" data-keywords="keep right lane traffic drive side oikea puoli">
+    <div class="text">
+      <div class="num">01</div>
+      <h3>Stay on the right</h3>
+      <p>In Finland every car drives on the <b>right side</b> of the road. You pass oncoming cars on your <b>left</b>.</p>
+      <ul class="ticks">
+        <li>Stay to the right of the middle line</li>
+        <li>Oncoming cars pass you on your left side</li>
+        <li>Only cross the line to overtake safely</li>
+      </ul>
+      <div class="rule blue"><span class="ic">💡</span><span>The dotted blue path shows where each car goes. Notice both cars hug the right edge.</span></div>
+    </div>
+    <div class="scene" data-scene="keepright"></div>
+  </article>
+
+  <!-- 02 Order -->
+  <section id="order" class="chapter wide" data-keywords="order police traffic lights signs right hand rule who goes first priority emergency">
+    <div class="text">
+      <div class="num">02</div>
+      <h3>Who goes first? Check in this order</h3>
+      <p>When you reach a junction, ask these four questions from top to bottom. The first one that applies decides.</p>
+    </div>
+    <div class="ladder">
+      <div class="step"><span class="n">STEP 1</span><div class="e">👮</div><h4>A police officer or road worker</h4><p>Hand signals beat everything, even lights and signs.</p></div>
+      <div class="step"><span class="n">STEP 2</span><div class="e">🚦</div><h4>Traffic lights</h4><p>Green means go, red means stop. Lights beat signs.</p></div>
+      <div class="step"><span class="n">STEP 3</span><div class="e">🛑</div><h4>Traffic signs</h4><p>STOP, Give way and Priority road tell you who goes first.</p></div>
+      <div class="step"><span class="n">STEP 4</span><div class="e">➡️</div><h4>No signs? Right-hand rule</h4><p>Let the car coming from your <b>right</b> go first.</p></div>
+    </div>
+    <div class="rule amber"><span class="ic">🚑</span><span><b>Always</b> let emergency vehicles with sirens and blue lights pass, whatever the signs say.</span></div>
+  </section>
+
+  <!-- 03 Signs -->
+  <section id="signs" class="chapter wide" data-keywords="traffic signs stop give way priority road main road end roundabout equal junction väistämisvelvollisuus">
+    <div class="text">
+      <div class="num">03</div>
+      <h3>The six signs that decide priority</h3>
+      <p>Learn these shapes. Even from far away, the <b>shape</b> tells you what to do: red triangle, red octagon, yellow diamond, blue circle.</p>
+    </div>
+    <div class="sign-grid" id="sign-grid"></div>
+  </section>
+
+  <!-- 04 Equal junction -->
+  <article class="chapter flip" data-keywords="equal intersection right hand rule tasa-arvoinen risteys no signs">
+    <div class="text">
+      <div class="num">04</div>
+      <h3>Junction with no signs: right-hand rule</h3>
+      <p>No signs and no lights? The junction is <b>equal</b> (<i>tasa-arvoinen risteys</i>). Look to your right.</p>
+      <div class="rule red"><span class="ic">🛑</span><span><b>Car A must wait.</b> Car B comes from A’s right side, so B goes first. Watch the “WAIT” bubble above A.</span></div>
+      <div class="rule blue" style="margin-top:12px"><span class="ic">⚠️</span><span>You may see the <b>Equal junction ahead</b> sign before the junction. It is only a warning, the rule stays the same.</span></div>
+    </div>
+    <div class="scene" data-scene="equal"></div>
+  </article>
+
+  <!-- 05 Give way & STOP -->
+  <section class="chapter wide" data-keywords="give way stop sign minor road main road väistä pysäytys">
+    <div class="text">
+      <div class="num">05</div>
+      <h3>Give way and STOP signs</h3>
+      <p>These signs are on the <b>small road</b>. Cars on the <b>main road</b> keep going. It does not matter if they come from your left or your right: you wait for <b>all</b> of them.</p>
+    </div>
+    <div class="pair">
+      <div>
+        <h4><svg><use href="#s-giveway"/></svg> Give way: slow down and look</h4>
+        <div class="scene" data-scene="giveway"></div>
+      </div>
+      <div>
+        <h4><svg><use href="#s-stop"/></svg> STOP: stop completely first</h4>
+        <div class="scene" data-scene="stop"></div>
+      </div>
+    </div>
+    <div class="rule green"><span class="ic">✅</span><span><b>Give way:</b> slow down, and stop only if a car is coming. <b>STOP:</b> always stop fully at the line, even if the road looks empty. Then go when it is safe.</span></div>
+  </section>
+
+  <!-- 06 Priority road -->
+  <article class="chapter" data-keywords="priority road main road yellow diamond etuajo-oikeutettu tie">
+    <div class="text">
+      <div class="num">06</div>
+      <h3>Priority road (the yellow diamond)</h3>
+      <p>The <b>yellow diamond</b> means you are on the main road. Side roads must let you pass, so you can drive straight through junctions.</p>
+      <ul class="ticks">
+        <li>Keep going at a safe speed, but still watch for others</li>
+        <li>Side-road cars have a Give way or STOP sign</li>
+        <li>When you see the diamond with a black stripe, the priority road <b>ends</b></li>
+      </ul>
+      <div class="rule amber"><span class="ic">⚠️</span><span>After the “end of priority road” sign, the next junction is equal again. Use the <b>right-hand rule</b>.</span></div>
+    </div>
+    <div class="scene" data-scene="priority"></div>
+  </article>
+
+  <!-- 07 Left turn -->
+  <article class="chapter flip" data-keywords="left turn oncoming traffic vastaantulevan väistäminen">
+    <div class="text">
+      <div class="num">07</div>
+      <h3>Turning left: wait for oncoming cars</h3>
+      <p>When you turn <b>left</b>, you cross the path of cars coming towards you. So you must <b>wait</b> until they have passed. This applies to oncoming cars going straight or turning right.</p>
+      <div class="rule red"><span class="ic">🚗</span><span><b>Car A waits</b> in its lane. Only after Car B drives past does A make the left turn.</span></div>
+    </div>
+    <div class="scene" data-scene="leftturn"></div>
+  </article>
+
+  <!-- 08 Roundabout -->
+  <article class="chapter" data-keywords="roundabout kiertoliittymä circle">
+    <div class="text">
+      <div class="num">08</div>
+      <h3>Roundabouts (<i>kiertoliittymä</i>)</h3>
+      <p>Almost every Finnish roundabout has a <b>Give way</b> sign at each entrance. Cars <b>already inside</b> the circle go first.</p>
+      <ul class="ticks">
+        <li>Drive <b>counter-clockwise</b> around the circle</li>
+        <li>Look to your <b>left</b> before you enter</li>
+        <li>Use your turn signal when you leave</li>
+      </ul>
+      <div class="rule blue"><span class="ic">🔄</span><span>Car A waits at the line until Car B has passed the entrance. Then A joins the circle.</span></div>
+    </div>
+    <div class="scene" data-scene="roundabout"></div>
+  </article>
+
+  <!-- Simulator -->
+  <section id="simulator" class="sim">
+    <div class="sim-head">
+      <div>
+        <div class="eyebrow">Interactive sandbox</div>
+        <h3>Priority simulator</h3>
+      </div>
+      <div class="seg" id="mode-seg">
+        <button class="on" data-mode="watch">👀 Watch</button>
+        <button data-mode="drive">🎮 You drive Car A</button>
+      </div>
+    </div>
+    <div class="tabs" id="sim-tabs"></div>
+    <div class="sim-grid">
+      <div>
+        <div class="scene" id="sim-scene"></div>
+        <div class="chips" id="sim-chips"></div>
+        <div class="controls">
+          <button class="go" id="go-btn">🟢 GO!</button>
+        </div>
+        <div class="controls">
+          <button class="btn sm" id="restart-btn">↻ Restart</button>
+          <label style="font-size:12px;color:var(--muted);font-weight:700">Speed
+            <select id="speed-sel"><option value="0.6">Slow</option><option value="1" selected>Normal</option><option value="1.6">Fast</option></select>
+          </label>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="signs-in" id="sim-signs"></div>
+        <h4 id="sim-title"></h4>
+        <p id="sim-text"></p>
+        <ol id="sim-steps"></ol>
+        <div id="sim-result" class="info"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quiz -->
+  <section id="quiz" class="quiz">
+    <div class="q-top">
+      <div><div class="eyebrow" style="color:var(--green)">Test yourself</div><h3 style="font-size:28px;font-weight:800;letter-spacing:-.02em">Practice quiz</h3></div>
+      <span id="q-progress" style="font-weight:700;color:var(--muted);font-size:14px"></span>
+    </div>
+    <div class="q-bar"><div id="q-fill"></div></div>
+    <div id="q-box"></div>
+  </section>
+</main>
+
+<footer>
+  <div>© 2026 Finnish Road Priority Rules · Visual guide for safe driving in Finland 🇫🇮</div>
+  <small>Learning aid only. Always follow the real road signs and official Traficom / driving-school material.</small>
+</footer>
+
+<script>
+/* =========================================================
+   Helpers & theme
+   ========================================================= */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+function toggleTheme(){
+  const h = document.documentElement;
+  const light = h.dataset.theme === 'dark';
+  h.dataset.theme = light ? 'light' : 'dark';
+  $('#theme-btn').textContent = light ? '🌙' : '☀️';
+}
+if (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) toggleTheme();
+
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) * 100;
+  $('#progress').style.width = p + '%';
+}, {passive:true});
+
+function filterChapters(){
+  const q = $('#chapter-search').value.trim().toLowerCase();
+  let shown = 0;
+  $$('main > .chapter').forEach(c => {
+    const hit = !q || c.innerText.toLowerCase().includes(q) || (c.dataset.keywords||'').includes(q);
+    c.style.display = hit ? '' : 'none';
+    if (hit) shown++;
+  });
+  $('#noresults').style.display = shown ? 'none' : 'block';
+}
+
+/* Roundabout sign: three white arrows going counter-clockwise */
+(function(){
+  const R = 23;
+  let s = '<circle cx="50" cy="50" r="46" fill="#0b5cab" stroke="#fff" stroke-width="3"/>';
+  for (let k = 0; k < 3; k++){
+    const ts = (k*120 + 20) * Math.PI/180, te = ts - 78*Math.PI/180;
+    const P = t => [50 + R*Math.cos(t), 50 + R*Math.sin(t)];
+    const [x1,y1] = P(ts), [x2,y2] = P(te);
+    const dx = Math.sin(te), dy = -Math.cos(te), nx = -dy, ny = dx;
+    s += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 0 0 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="#fff" stroke-width="5"/>`;
+    s += `<polygon fill="#fff" points="${(x2+dx*9).toFixed(1)},${(y2+dy*9).toFixed(1)} ${(x2+nx*6.5).toFixed(1)},${(y2+ny*6.5).toFixed(1)} ${(x2-nx*6.5).toFixed(1)},${(y2-ny*6.5).toFixed(1)}"/>`;
+  }
+  $('#s-round').innerHTML = s;
+})();
+
+/* =========================================================
+   Sign gallery
+   ========================================================= */
+const SIGNS = [
+  {id:'s-giveway', name:'Give way', fi:'Väistämisvelvollisuus risteyksessä', tag:['red','Wait for others'],
+   easy:'Slow down. Let the cars on the road you are joining go first. Stop only if needed.'},
+  {id:'s-stop', name:'STOP', fi:'Pysäytysvelvollisuus risteyksessä', tag:['red','Full stop'],
+   easy:'Stop completely at the line, even if it looks empty. Then let everyone on the main road go first.'},
+  {id:'s-priority', name:'Priority road', fi:'Etuajo-oikeutettu tie', tag:['yellow','You go first'],
+   easy:'You are on the main road. Cars from side roads must let you pass.'},
+  {id:'s-endpriority', name:'End of priority road', fi:'Etuajo-oikeutetun tien päättyminen', tag:['yellow','Rules change'],
+   easy:'Your main road ends. At the next junction, use the right-hand rule again.'},
+  {id:'s-round', name:'Roundabout', fi:'Kiertoliittymä', tag:['blue','Drive counter-clockwise'],
+   easy:'Roundabout ahead. Cars already in the circle go first. Look to your left before entering.'},
+  {id:'s-equal', name:'Equal junction ahead', fi:'Tasa-arvoinen risteys', tag:['green','Look right'],
+   easy:'No road is the main road. Let the car coming from your right go first.'}
+];
+$('#sign-grid').innerHTML = SIGNS.map(s => `
+  <div class="sign-card">
+    <svg><use href="#${s.id}"/></svg>
+    <h4>${s.name}</h4>
+    <div class="fi">${s.fi}</div>
+    <p>${s.easy}</p>
+    <span class="tag ${s.tag[0]}">${s.tag[1]}</span>
+  </div>`).join('');
+
+/* =========================================================
+   Scene engine: roads, signs, cars on paths
+   Every car drives on the RIGHT side of its road.
+   ========================================================= */
+const COL = {A:'#3b82f6', B:'#f97316', C:'#a855f7'};
+const ROAD = '#394560', L = 'rgba(255,255,255,.62)', E = 'rgba(255,255,255,.22)';
+
+const ln = (x1,y1,x2,y2,c=L,w=2.5,d='') =>
+  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}"${d?` stroke-dasharray="${d}"`:''}/>`;
+const tree = (x,y,r=13) =>
+  `<circle cx="${x}" cy="${y}" r="${r}" fill="#0c5238"/><circle cx="${x-3}" cy="${y-3}" r="${r*.6}" fill="#1c7c54"/>`;
+const trees = a => a.map(t => tree(...t)).join('');
+const grass = '<rect width="400" height="400" fill="#14402e"/>';
+const sign = (id,x,y,s=30) =>
+  `<g><rect x="${x-1.5}" y="${y+s-3}" width="3" height="16" rx="1.5" fill="#cbd5e1"/><use href="#${id}" x="${x-s/2}" y="${y}" width="${s}" height="${s}"/></g>`;
+const arrowUp = (x,y,rot=0) =>
+  `<path d="M0 -11 L8 2 L3 2 L3 12 L-3 12 L-3 2 L-8 2 Z" fill="#fff" opacity=".5" transform="translate(${x} ${y}) rotate(${rot})"/>`;
+
+const bgStraight = () => grass
+  + '<rect x="156" y="0" width="88" height="400" fill="'+ROAD+'"/>'
+  + ln(156,0,156,400,E) + ln(244,0,244,400,E) + ln(200,0,200,400,L,2.5,'14 12')
+  + arrowUp(222,110) + arrowUp(222,310) + arrowUp(178,90,180) + arrowUp(178,290,180)
+  + trees([[85,60],[95,175],[80,300],[330,80],[320,230],[335,345],[100,370],[340,15]]);
+
+const bgCross = (tr) => grass
+  + '<rect x="156" y="0" width="88" height="400" fill="'+ROAD+'"/><rect x="0" y="156" width="400" height="88" fill="'+ROAD+'"/>'
+  + ln(156,0,156,156,E)+ln(244,0,244,156,E)+ln(156,244,156,400,E)+ln(244,244,244,400,E)
+  + ln(0,156,156,156,E)+ln(244,156,400,156,E)+ln(0,244,156,244,E)+ln(244,244,400,244,E)
+  + ln(200,0,200,150,L,2.5,'12 10')+ln(200,250,200,400,L,2.5,'12 10')
+  + ln(0,200,150,200,L,2.5,'12 10')+ln(250,200,400,200,L,2.5,'12 10')
+  + trees(tr);
+
+const bgT = (tr) => grass
+  + '<rect x="0" y="156" width="400" height="88" fill="'+ROAD+'"/><rect x="156" y="244" width="88" height="156" fill="'+ROAD+'"/>'
+  + ln(0,156,400,156,E)+ln(0,244,156,244,E)+ln(244,244,400,244,E)+ln(156,244,156,400,E)+ln(244,244,244,400,E)
+  + ln(0,200,400,200,L,2.5,'12 10')+ln(200,252,200,400,L,2.5,'12 10')
+  + trees(tr);
+
+const bgRound = (tr) => grass
+  + '<rect x="156" y="0" width="88" height="400" fill="'+ROAD+'"/><rect x="0" y="156" width="400" height="88" fill="'+ROAD+'"/>'
+  + ln(156,0,156,120,E)+ln(244,0,244,120,E)+ln(156,280,156,400,E)+ln(244,280,244,400,E)
+  + ln(0,156,120,156,E)+ln(280,156,400,156,E)+ln(0,244,120,244,E)+ln(280,244,400,244,E)
+  + `<circle cx="200" cy="200" r="84" fill="${ROAD}"/><circle cx="200" cy="200" r="84" fill="none" stroke="${E}" stroke-width="2"/>`
+  + `<circle cx="200" cy="200" r="60" fill="none" stroke="${L}" stroke-width="1.5" stroke-dasharray="4 10" opacity=".5"/>`
+  + ln(200,0,200,112,L,2.5,'12 10')+ln(200,288,200,400,L,2.5,'12 10')+ln(0,200,112,200,L,2.5,'12 10')+ln(288,200,400,200,L,2.5,'12 10')
+  + `<circle cx="200" cy="200" r="36" fill="#1a6b46" stroke="#d7dde8" stroke-width="3"/>`
+  + tree(200,200,15) + tree(188,212,8) + trees(tr);
+
+const T_TREES = [[70,60],[120,105,11],[330,70],[290,105,11],[75,335],[115,315,11],[335,335],[305,320,11]];
+
+const SC = {
+  keepright:{
+    cap:'Both cars stay in their <b>right-hand lane</b>.',
+    bg:bgStraight(), over:'',
+    cars:[
+      {id:'A', path:'M222 440 L222 -40', speed:105, delay:0},
+      {id:'B', path:'M178 -40 L178 440', speed:105, delay:.5}
+    ]
+  },
+
+  equal:{
+    name:'No signs', icon:'s-equal',
+    title:'Junction with no signs',
+    text:'Car A and Car B reach an equal junction. Car B comes from A’s right side.',
+    steps:['<b>Any lights or signs?</b> No.','<b>Use the right-hand rule.</b> Who is on my right? Car B.','<b>Car A waits.</b> Car B goes first.'],
+    verdict:'Car B goes first because it comes from A’s <b>right</b>. Car A waits, then drives on.',
+    cap:'<b>Car A waits.</b> B is on A’s right.',
+    signs:['s-equal'],
+    bg:bgCross(T_TREES),
+    over:sign('s-equal',264,318,30),
+    cars:[
+      {id:'A', path:'M222 440 L222 -40', speed:140, delay:0, user:true,
+        hold:{at:165, until:[['B',250]], reason:'Car B is coming from your <b>right</b>. At a junction with no signs, it goes first.'}},
+      {id:'B', path:'M440 178 L-40 178', speed:95, delay:0}
+    ]
+  },
+
+  leftturn:{
+    name:'Left turn', icon:'↰',
+    title:'Turning left',
+    text:'Car A wants to turn left. Car B drives straight towards the junction from the opposite direction.',
+    steps:['<b>Left turn = crossing</b> the path of oncoming cars.','<b>Wait</b> in your lane until the oncoming car has passed.','<b>Turn</b> only when the way is clear.'],
+    verdict:'Oncoming Car B goes first. A turns left only after B has driven past.',
+    cap:'<b>Car A waits</b> for oncoming Car B.',
+    signs:[],
+    bg:bgCross(T_TREES), over:'',
+    cars:[
+      {id:'A', path:'M222 440 L222 258 Q222 178 142 178 L-40 178', speed:140, delay:0, user:true,
+        hold:{at:165, until:[['B',255]], reason:'Car B is oncoming. When you turn left, you must <b>wait</b> until it has passed.'}},
+      {id:'B', path:'M178 -40 L178 440', speed:100, delay:0}
+    ]
+  },
+
+  giveway:{
+    name:'Give way', icon:'s-giveway',
+    title:'Give way sign',
+    text:'Car A is on a small road with a Give way sign. Cars B and C are on the main road. A wants to turn left.',
+    steps:['<b>See the red triangle?</b> Slow down.','<b>Look both ways.</b> Left and right.','<b>Wait for B and C.</b> Go when both have passed.'],
+    verdict:'The main road goes first, from <b>both</b> directions. Car A waits for B and C.',
+    cap:'<b>Car A waits</b> for B and C on the main road.',
+    signs:['s-giveway'],
+    bg:bgT(T_TREES),
+    over:ln(200,250,244,250,'#fff',4,'7 5') + sign('s-giveway',264,268,30),
+    cars:[
+      {id:'A', path:'M222 440 L222 258 Q222 178 142 178 L-40 178', speed:140, delay:0, user:true,
+        hold:{at:165, until:[['B',295],['C',330]], reason:'You have a <b>Give way</b> sign. Cars on the main road (B and C) go first, from left and right.'}},
+      {id:'B', path:'M-40 222 L440 222', speed:105, delay:0},
+      {id:'C', path:'M440 178 L-40 178', speed:110, delay:.3}
+    ]
+  },
+
+  stop:{
+    name:'STOP', icon:'s-stop',
+    title:'STOP sign',
+    text:'Car A has a STOP sign. It must stop completely at the line. Car B is on the main road, coming from the left.',
+    steps:['<b>See the red octagon?</b> Stop at the line.','<b>Stop fully.</b> Wheels not moving, even if the road is empty.','<b>Look, then go</b> when the main road is clear.'],
+    verdict:'A stops completely, then waits until Car B on the main road has passed.',
+    cap:'<b>Car A stops fully</b>, then waits for B.',
+    signs:['s-stop'],
+    bg:bgT(T_TREES),
+    over:ln(200,250,244,250,'#fff',5) + sign('s-stop',264,268,30),
+    cars:[
+      {id:'A', path:'M222 440 L222 258 Q222 222 258 222 L440 222', speed:140, delay:0, user:true,
+        hold:{at:165, fullStop:true, minWait:1.4, until:[['B',340]], reason:'Car B is on the main road and goes first. And remember: at a STOP sign you must stop <b>completely</b> before you go.'}},
+      {id:'B', path:'M-40 222 L440 222', speed:115, delay:1.2}
+    ]
+  },
+
+  priority:{
+    name:'Priority road', icon:'s-priority',
+    title:'Priority road (main road)',
+    text:'Cars B and C drive on the priority road (yellow diamonds). Car A comes from the side road with a Give way sign and wants to cross straight.',
+    steps:['<b>Yellow diamond</b> = the main road goes first.','<b>Side road</b> has a Give way or STOP sign.','<b>Car A crosses</b> only after B and C have passed.'],
+    verdict:'The priority road goes first. Car A waits until B and C are gone.',
+    cap:'<b>Main road goes first.</b> A waits.',
+    signs:['s-priority','s-giveway'],
+    bg:bgCross([[70,60],[120,105,11],[335,65],[75,335],[120,330,11],[335,335],[310,320,11]]),
+    over:ln(200,250,244,250,'#fff',4,'7 5') + sign('s-giveway',264,268,30) + sign('s-priority',96,262,30) + sign('s-priority',300,108,30),
+    cars:[
+      {id:'A', path:'M222 440 L222 -40', speed:140, delay:0, user:true,
+        hold:{at:165, until:[['B',295],['C',255]], reason:'B and C are on the <b>priority road</b>. Side-road traffic must wait for them.'}},
+      {id:'B', path:'M-40 222 L440 222', speed:105, delay:0},
+      {id:'C', path:'M440 178 L-40 178', speed:100, delay:.5}
+    ]
+  },
+
+  roundabout:{
+    name:'Roundabout', icon:'s-round',
+    title:'Roundabout',
+    text:'Car B is already driving in the roundabout. Car A wants to enter and take the second exit.',
+    steps:['<b>Give way sign</b> at the entrance.','<b>Look left.</b> Cars inside the circle go first.','<b>Enter</b> when there is a safe gap, and drive counter-clockwise.'],
+    verdict:'Car B is already in the circle, so it goes first. A enters after B has passed the entrance.',
+    cap:'<b>Car A waits</b> for B inside the circle.',
+    signs:['s-round','s-giveway'],
+    bg:bgRound([[60,60],[335,70],[70,340],[340,340],[330,200,0.1]]),
+    over:ln(200,280,244,280,'#fff',3,'6 4') + sign('s-giveway',270,294,28) + sign('s-round',270,342,28),
+    cars:[
+      {id:'A', path:'M222 440 L222 255.8 A60 60 0 0 0 222 144.2 L222 -40', speed:130, delay:0, user:true,
+        hold:{at:145, until:[['B',310]], reason:'Car B is already <b>inside</b> the roundabout. Cars in the circle go first.'}},
+      {id:'B', path:'M-40 222 L144.2 222 A60 60 0 0 0 255.8 222 L440 222', speed:105, delay:0}
+    ]
+  }
+};
+
+function carSVG(id){
+  const c = COL[id];
+  return `<g class="car"><g class="rot">
+    <rect x="-17" y="-7" width="36" height="18" rx="6" fill="rgba(0,0,0,.35)"/>
+    <polygon points="18,-5 54,-18 54,18 18,5" fill="url(#beam)"/>
+    <rect x="-18" y="-9" width="36" height="18" rx="6" fill="${c}" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+    <rect x="-9" y="-6.5" width="17" height="13" rx="3" fill="rgba(0,0,0,.28)"/>
+    <rect x="8" y="-6.5" width="6" height="13" rx="2" fill="#cfe6ff" opacity=".9"/>
+    <rect x="-14" y="-6" width="3" height="12" rx="1.5" fill="#9ec5ee" opacity=".7"/>
+    <circle cx="17" cy="-6.2" r="2.1" fill="#fff7c2"/><circle cx="17" cy="6.2" r="2.1" fill="#fff7c2"/>
+    <rect class="tl" x="-19" y="-8" width="3" height="5" rx="1" fill="#ff3b3b"/><rect class="tl" x="-19" y="3" width="3" height="5" rx="1" fill="#ff3b3b"/>
+  </g>
+  <g><circle r="7.5" fill="#fff" opacity=".95"/><text y="3.6" text-anchor="middle" font-size="10" font-weight="800" fill="#0f172a">${id}</text></g>
+  <g class="bub" style="opacity:0"><rect x="-22" y="-38" width="44" height="17" rx="8.5" fill="#ef4444"/><text x="0" y="-26" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">WAIT</text></g>
+  </g>`;
+}
+
+const scenes = [];
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.target.__scene) e.target.__scene.visible = e.isIntersecting; }), {threshold:.15});
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+class Scene{
+  constructor(host, key, opts={}){
+    this.host = host; this.opts = opts; this.speed = 1;
+    this.manual = false; this.crashOn = false; this.loop = !opts.noLoop;
+    this.visible = false; host.__scene = this;
+    this.setScenario(key);
+    io.observe(host); scenes.push(this);
+  }
+  setScenario(key){
+    this.key = key; this.sc = SC[key];
+    const sc = this.sc;
+    const paths = sc.cars.map(c => `<path class="traj" d="${c.path}" stroke="${COL[c.id]}"/>`).join('');
+    const cars = sc.cars.map(c => carSVG(c.id)).join('');
+    const svg = `<svg viewBox="0 0 400 400" role="img" aria-label="Animated traffic scene">${sc.bg}${paths}${sc.over}${cars}<g class="fx"></g></svg>`;
+    const bar = this.opts.noBar ? '' :
+      `<div class="scene-bar"><span>${sc.cap||''}</span><button class="btn sm" data-replay>↻ Replay</button></div>`;
+    this.host.innerHTML = svg + bar;
+    const rb = $('[data-replay]', this.host); if (rb) rb.onclick = () => this.reset();
+    this.svg = $('svg', this.host); this.fx = $('.fx', this.svg);
+    const pe = $$('.traj', this.svg), ce = $$('.car', this.svg);
+    this.cars = sc.cars.map((c,i) => ({
+      ...c, pathEl:pe[i], len:pe[i].getTotalLength(), el:ce[i], rot:$('.rot',ce[i]), tls:$$('.tl',ce[i]),
+      bub:$('.bub',ce[i]), bubRect:$('.bub rect',ce[i]), bubText:$('.bub text',ce[i])
+    }));
+    this.byId = Object.fromEntries(this.cars.map(c => [c.id, c]));
+    this.reset();
+  }
+  reset(){
+    this.time = 0; this.frozen = false; this.doneT = 0; this.resultShown = false; this.lastStatus = '';
+    if (this.fx) this.fx.innerHTML = '';
+    for (const c of this.cars){
+      c.d = 0; c.v = 0; c.released = false; c.waitT = 0; c.done = false; c.goFlash = 0; c.illegal = false; c.state = 'coming';
+      const p = c.pathEl.getPointAtLength(0), q = c.pathEl.getPointAtLength(2);
+      c.ang = Math.atan2(q.y-p.y, q.x-p.x) * 180/Math.PI;
+      if (reduceMotion && !this.opts.noPoster){ c.d = c.hold ? c.hold.at - 20 : c.len*.4; }
+      this.place(c);
+    }
+    if (this.opts.onReset) this.opts.onReset(this);
+  }
+  canGo(c){ return !c.hold || c.hold.until.every(([id,d]) => this.byId[id].d >= d); }
+  go(){
+    const c = this.cars.find(c => c.user);
+    if (!c || !c.hold || c.released || this.frozen) return;
+    const h = c.hold, can = this.canGo(c), stopped = !h.fullStop || c.waitT >= h.minWait;
+    c.released = true; c.goFlash = 1.1;
+    if (can && stopped){
+      this.opts.onResult && this.opts.onResult('info','👍 Looks safe… drive!');
+    } else {
+      c.illegal = true;
+      const why = can ? 'At a STOP sign you must stop <b>completely</b> first. Wait a moment at the line.' : h.reason;
+      this.opts.onResult && this.opts.onResult('bad','❌ Not allowed! ' + why);
+      this.host.classList.remove('shake'); void this.host.offsetWidth; this.host.classList.add('shake');
+    }
+  }
+  place(c){
+    const p = c.pathEl.getPointAtLength(c.d);
+    c.x = p.x; c.y = p.y;
+    c.el.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+    c.rot.setAttribute('transform', `rotate(${c.ang.toFixed(1)})`);
+  }
+  step(dt){
+    if (this.frozen) return;
+    this.time += dt;
+    let allDone = true;
+    for (const c of this.cars){
+      if (c.done) continue;
+      if (this.time < c.delay){ allDone = false; continue; }
+      let target = c.speed, held = false;
+      const h = c.hold;
+      if (h && !c.released){
+        const rem = h.at - c.d, can = this.canGo(c);
+        held = rem < 55;
+        if (!this.manual && !h.fullStop && can){
+          c.released = true; if (c.waitT > .1) c.goFlash = 1.1;
+        } else if (rem <= 0.6){
+          c.d = h.at; c.v = 0; target = 0; held = true; c.waitT += dt;
+          if (!this.manual && can && (!h.fullStop || c.waitT >= h.minWait)){ c.released = true; c.goFlash = 1.1; }
+        } else if (h.fullStop || !can || this.manual){
+          target = c.speed * Math.max(.14, Math.min(1, rem/90));
+        }
+      }
+      const dv = target - c.v;
+      c.v += Math.max(-430*dt, Math.min(160*dt, dv));
+      c.d = Math.min(c.len, c.d + c.v*dt);
+      if (h && !c.released) c.d = Math.min(c.d, h.at);
+      if (c.d >= c.len - .5){ c.done = true; c.d = c.len; }
+      else allDone = false;
+
+      const q = c.pathEl.getPointAtLength(Math.min(c.len, c.d + 3));
+      const p0 = c.pathEl.getPointAtLength(c.d);
+      if (Math.hypot(q.x-p0.x, q.y-p0.y) > .5){
+        const t = Math.atan2(q.y-p0.y, q.x-p0.x) * 180/Math.PI;
+        const diff = ((t - c.ang + 540) % 360) - 180;
+        c.ang += diff * Math.min(1, dt*12);
+      }
+      this.place(c);
+
+      const braking = held || c.v < target - 8 || (target < c.speed*.7);
+      c.tls.forEach(t => t.setAttribute('opacity', braking ? 1 : .35));
+      // state + bubble
+      if (c.done) c.state = 'done';
+      else if (held && c.v < 6) c.state = 'waiting';
+      else if (held || braking) c.state = 'slowing';
+      else c.state = 'driving';
+      let bt = '', bc = '#ef4444';
+      if (h && !c.released && held){
+        if (this.manual){ if (c.user){ bt = '?'; bc = '#f59e0b'; } }
+        else { bt = 'WAIT'; }
+      }
+      if (c.goFlash > 0){ c.goFlash -= dt; bt = 'GO'; bc = '#22c55e'; }
+      c.bub.style.opacity = bt ? 1 : 0;
+      if (bt){ c.bubText.textContent = bt; c.bubRect.setAttribute('fill', bc); }
+    }
+    // crash check (drive mode only)
+    if (this.crashOn){
+      for (let i = 0; i < this.cars.length; i++) for (let j = i+1; j < this.cars.length; j++){
+        const a = this.cars[i], b = this.cars[j];
+        if (a.d < 1 || b.d < 1 || a.done || b.done) continue;
+        if (Math.hypot(a.x-b.x, a.y-b.y) < 21){ this.crash((a.x+b.x)/2, (a.y+b.y)/2, a, b); return; }
+      }
+    }
+    // status
+    if (this.opts.onStatus){
+      const s = this.cars.map(c => c.id + ':' + c.state).join('|');
+      if (s !== this.lastStatus){ this.lastStatus = s; this.opts.onStatus(this.cars); }
+    }
+    if (allDone){
+      this.doneT += dt;
+      if (!this.resultShown){
+        this.resultShown = true;
+        const u = this.cars.find(c => c.user);
+        if (this.manual && u && !u.illegal) this.opts.onResult && this.opts.onResult('good','✅ <b>Well done!</b> You waited until it was safe. ' + this.sc.verdict);
+        else if (!this.manual && this.opts.onResult) this.opts.onResult('info','👉 <b>Verdict:</b> ' + this.sc.verdict);
+      }
+      if (this.loop && this.doneT > 1.6 && !reduceMotion) this.reset();
+    }
+  }
+  crash(x, y, a, b){
+    this.frozen = true;
+    this.fx.innerHTML = `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="9" fill="#fbbf24" class="boom"/><circle r="9" fill="none" stroke="#ef4444" stroke-width="3" class="boom"/><text y="12" text-anchor="middle" font-size="34">💥</text></g>`;
+    const u = this.cars.find(c => c.user);
+    this.opts.onResult && this.opts.onResult('bad','💥 <b>Crash!</b> ' + (u && u.hold ? u.hold.reason : 'You drove when another car had priority.'));
+    this.opts.onStatus && this.opts.onStatus(this.cars);
+  }
+}
+
+let last = performance.now();
+function tick(ts){
+  const dt = Math.min(.05, (ts - last)/1000); last = ts;
+  for (const s of scenes) if (s.visible && !document.hidden) s.step(dt * s.speed);
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* chapter scenes */
+$$('[data-scene]').forEach(h => new Scene(h, h.dataset.scene));
+
+/* =========================================================
+   Simulator
+   ========================================================= */
+const SIM_KEYS = ['equal','leftturn','giveway','stop','priority','roundabout'];
+let simKey = 'equal', mode = 'watch';
+const STATE_TXT = {coming:['Coming…',''],driving:['Driving','driving'],slowing:['Slowing down','slowing'],waiting:['Waiting','waiting'],done:['Passed','done']};
+const STATE_DOT = {driving:'#22c55e',slowing:'#fbbf24',waiting:'#ef4444',done:'#64748b',coming:'#64748b'};
+
+function setResult(kind, html){ const r = $('#sim-result'); r.className = kind; r.innerHTML = html; }
+
+const sim = new Scene($('#sim-scene'), simKey, {
+  noBar:true,
+  onStatus: cars => {
+    $('#sim-chips').innerHTML = cars.map(c => {
+      const [t, cls] = STATE_TXT[c.state];
+      return `<span class="chip ${cls}"><i style="background:${STATE_DOT[c.state]}"></i>Car ${c.id}: ${t}</span>`;
+    }).join('');
+  },
+  onResult: setResult,
+  onReset: s => {
+    if (s.manual) setResult('info','🎮 <b>Your turn.</b> Car A is coming to the junction. Look carefully, then press <b>GO</b> only when it is allowed.');
+    else setResult('info','👀 Watch how the cars move. Press <b>Restart</b> to see it again.');
+  }
+});
+
+function loadSim(key){
+  simKey = key; const sc = SC[key];
+  sim.setScenario(key);
+  $$('.tab').forEach(t => t.classList.toggle('on', t.dataset.key === key));
+  $('#sim-title').textContent = sc.title;
+  $('#sim-text').textContent = sc.text;
+  $('#sim-steps').innerHTML = sc.steps.map(s => `<li>${s}</li>`).join('');
+  const names = {'s-giveway':'Give way','s-stop':'STOP','s-priority':'Priority road','s-round':'Roundabout','s-equal':'Equal junction'};
+  $('#sim-signs').innerHTML = sc.signs.length
+    ? sc.signs.map(id => `<span><svg><use href="#${id}"/></svg>${names[id]||''}</span>`).join('')
+    : '<span style="padding:7px 14px">No sign: use the rule</span>';
+}
+$('#sim-tabs').innerHTML = SIM_KEYS.map(k => {
+  const sc = SC[k];
+  const icon = sc.icon.startsWith('s-') ? `<svg><use href="#${sc.icon}"/></svg>` : `<span class="ar">${sc.icon}</span>`;
+  return `<button class="tab" data-key="${k}">${icon}<span>${sc.name}</span></button>`;
+}).join('');
+$$('.tab').forEach(t => t.onclick = () => loadSim(t.dataset.key));
+
+function setMode(m){
+  mode = m;
+  $$('#mode-seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  sim.manual = m === 'drive'; sim.crashOn = m === 'drive'; sim.loop = m === 'watch';
+  $('#go-btn').classList.toggle('show', m === 'drive');
+  sim.reset();
+}
+$$('#mode-seg button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+$('#go-btn').onclick = () => sim.go();
+$('#restart-btn').onclick = () => sim.reset();
+$('#speed-sel').onchange = e => sim.speed = parseFloat(e.target.value);
+document.addEventListener('keydown', e => {
+  if (mode === 'drive' && (e.code === 'Space' || e.code === 'Enter') && sim.visible && e.target === document.body){ e.preventDefault(); sim.go(); }
+});
+loadSim('equal');
+
+/* =========================================================
+   Quiz
+   ========================================================= */
+const QUIZ = [
+  {sign:'s-giveway', q:'What does this sign mean?',
+   o:['You have priority over everyone','Slow down and let traffic on the road you are joining go first','Parking is allowed','Speed limit ahead'], a:1,
+   e:'The red triangle pointing down is the Give way sign. You wait for traffic on the main road, from both left and right.'},
+  {sign:'s-stop', q:'You reach this sign and the road looks empty. What do you do?',
+   o:['Slow down and drive on','Honk and go','Stop completely at the line, look, then go when it is safe','Stop only if you see a car'], a:2,
+   e:'At a STOP sign you always stop fully, even if the road looks empty. Then you give way to all traffic.'},
+  {q:'A junction has no signs and no traffic lights. Who goes first?',
+   o:['The car coming from your left','The car coming from your right','The bigger vehicle','The faster car'], a:1,
+   e:'This is an equal junction. The right-hand rule applies: traffic from your right goes first.'},
+  {sign:'s-priority', q:'You see this yellow diamond. What does it tell you?',
+   o:['You are on the priority (main) road','The road is closed','Roadworks ahead','You must give way'], a:0,
+   e:'The yellow diamond marks the priority road. Cars from side roads must let you pass.'},
+  {sign:'s-endpriority', q:'You pass this sign. What changes?',
+   o:['Nothing changes','You must stop at the next junction','Your priority road ends, so the next equal junction uses the right-hand rule','The speed limit rises'], a:2,
+   e:'The diagonal stripe means the priority road ends. After it, junctions without signs are equal again.'},
+  {q:'You want to turn left. A car is coming towards you and going straight. What now?',
+   o:['Turn quickly before it arrives','Wait and let it pass first','Flash your lights and go','Drive on the left side'], a:1,
+   e:'When you turn left you cross the path of oncoming cars, so you wait until they have passed.'},
+  {sign:'s-round', q:'You are about to enter a roundabout. A car is already inside the circle. What do you do?',
+   o:['Enter first, you are faster','Wait. Cars already in the roundabout go first','Stop in the middle','Drive clockwise'], a:1,
+   e:'Cars already in the circle go first. At the entrance there is normally a Give way sign. Look to your left before entering.'},
+  {sign:'s-equal', q:'What does this warning sign tell you?',
+   o:['Junction ahead where roads are equal. Let traffic from the right go first','Pedestrian crossing','Railway crossing','No overtaking'], a:0,
+   e:'It warns of an equal junction. No road is the main road, so the right-hand rule applies.'}
+];
+let qi = 0, score = 0, answered = false;
+function renderQ(){
+  const q = QUIZ[qi]; answered = false;
+  $('#q-progress').textContent = `Question ${qi+1} of ${QUIZ.length} · Score ${score}`;
+  $('#q-fill').style.width = (qi/QUIZ.length*100) + '%';
+  $('#q-box').innerHTML = `
+    <div class="q-body ${q.sign?'':'nosign'}">${q.sign?`<svg><use href="#${q.sign}"/></svg>`:''}<h4>${q.q}</h4></div>
+    <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}"><span class="l">${'ABCD'[i]}</span><span>${t}</span></button>`).join('')}</div>
+    <div id="q-feedback"></div>
+    <div style="margin-top:16px"><button class="btn primary" id="q-next" style="display:none">${qi===QUIZ.length-1?'See my score':'Next question →'}</button></div>`;
+  $$('.opt').forEach(b => b.onclick = () => answer(+b.dataset.i));
+  $('#q-next').onclick = () => { qi++; qi < QUIZ.length ? renderQ() : endQuiz(); };
+}
+function answer(i){
+  if (answered) return; answered = true;
+  const q = QUIZ[qi], ok = i === q.a; if (ok) score++;
+  $$('.opt').forEach((b,k) => { b.disabled = true; if (k === q.a) b.classList.add('correct'); else if (k === i) b.classList.add('wrong'); });
+  const f = $('#q-feedback');
+  f.className = ok ? 'good' : 'bad';
+  f.innerHTML = (ok ? '✅ <b>Correct!</b> ' : '❌ <b>Not quite.</b> ') + q.e;
+  $('#q-next').style.display = 'inline-flex';
+  $('#q-progress').textContent = `Question ${qi+1} of ${QUIZ.length} · Score ${score}`;
+}
+function endQuiz(){
+  $('#q-fill').style.width = '100%';
+  const pct = score / QUIZ.length;
+  const msg = pct === 1 ? 'Perfect! You know the priority rules.' : pct >= .75 ? 'Great job! Review the signs you missed and you are ready.' : 'Good start. Read the chapters again and watch the simulator, then retry.';
+  $('#q-box').innerHTML = `<div class="q-end"><div style="font-size:48px">${pct>=.75?'🎉':'📘'}</div><div class="big grad">${score} / ${QUIZ.length}</div><p style="color:var(--muted);margin:8px 0 22px">${msg}</p><button class="btn primary" id="q-restart">↻ Try again</button></div>`;
+  $('#q-restart').onclick = () => { qi = 0; score = 0; renderQ(); };
+  $('#q-progress').textContent = 'Finished';
+}
+renderQ();
+</script>
+</body>
+</html>
